@@ -1,6 +1,7 @@
 
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -21,7 +22,7 @@ import sun.audio.AudioStream;
  *
  * @author alu20919409n
  */
-public class Board extends JPanel {
+public class Board extends JPanel implements ActionListener {
 
     class MyKeyAdapter extends KeyAdapter {
 
@@ -30,7 +31,7 @@ public class Board extends JPanel {
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_LEFT:
                     if (!directionRight) {
-                        DirectionType.LEFT;
+                        //DirectionType.LEFT;
                         directionLeft = true;
                     }
                     break;
@@ -57,6 +58,9 @@ public class Board extends JPanel {
     MyKeyAdapter keyAdapter;
     AudioStream audioSong = null;
     AudioStream audioEffect = null;
+    private Food food;
+    private SpecialFood specialFood;
+    private Snake snake;
 
     public Board() {
         super();
@@ -67,12 +71,13 @@ public class Board extends JPanel {
 
     public void initValues() {
         setFocusable(true);
-        cleanBoard();
         deltaTime = 500;
+        snake = new Snake();
+
     }
 
     public void initGame() {
-        AudioPlayer.player.stop(song);
+        AudioPlayer.player.stop(audioSong);
         removeKeyListener(keyAdapter);
         initValues();
         timer.setDelay(deltaTime);
@@ -82,27 +87,22 @@ public class Board extends JPanel {
         playSong(".wav");
     }
 
-    private boolean canMoveTo() {
-        if () {
-            return false;
-        }
-        return true;
+    /* private boolean canMoveTo() {
+        
     }
-
+    
     private boolean checkColision() {
-
-    }
-
+        
+    }*/
     @Override
     public void actionPerformed(ActionEvent ae) {
-
+//Snake.moveSnake();
     }
 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        
-        Snake.draw(g, squareWidth(), squareHeight());
 
+        snake.draw(g, squareWidth(), squareHeight());
         drawBoarder(g);
     }
 
