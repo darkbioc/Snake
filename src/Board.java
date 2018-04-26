@@ -30,12 +30,25 @@ public class Board extends JPanel implements ActionListener {
         public void keyPressed(KeyEvent e) {
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_LEFT:
-                    if (!directionRight) {
-                        //DirectionType.LEFT;
-                        directionLeft = true;
+                    if (direction != DirectionType.RIGHT) {
+                        direction = DirectionType.LEFT;
                     }
+
                     break;
                 case KeyEvent.VK_RIGHT:
+                    if (direction != DirectionType.LEFT) {
+                        direction = DirectionType.RIGHT;
+                    }
+                    break;
+                case KeyEvent.VK_UP:
+                    if (direction != DirectionType.DOWN) {
+                        direction = DirectionType.UP;
+                    }
+                    break;
+                case KeyEvent.VK_DOWN:
+                    if (direction != DirectionType.UP) {
+                        direction = DirectionType.DOWN;
+                    }
                     break;
                 default:
                     break;
@@ -61,6 +74,7 @@ public class Board extends JPanel implements ActionListener {
     private Food food;
     private SpecialFood specialFood;
     private Snake snake;
+    private DirectionType direction = DirectionType.RIGHT;
 
     public Board() {
         super();
@@ -72,19 +86,22 @@ public class Board extends JPanel implements ActionListener {
     public void initValues() {
         setFocusable(true);
         deltaTime = 500;
-        snake = new Snake();
+        snake = new Snake(4);
 
     }
 
     public void initGame() {
-        AudioPlayer.player.stop(audioSong);
-        removeKeyListener(keyAdapter);
+        //AudioPlayer.player.stop(audioSong);
         initValues();
+
+        removeKeyListener(keyAdapter);
         timer.setDelay(deltaTime);
         timer.start();
         addKeyListener(keyAdapter);
         gameOver = false;
-        playSong(".wav");
+        //playSong(".wav");
+        direction = DirectionType.DOWN;
+
     }
 
     /* private boolean canMoveTo() {
@@ -96,12 +113,12 @@ public class Board extends JPanel implements ActionListener {
     }*/
     @Override
     public void actionPerformed(ActionEvent ae) {
-//Snake.moveSnake();
+        snake.movement(direction);
+        repaint();
     }
 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
         snake.draw(g, squareWidth(), squareHeight());
         drawBoarder(g);
     }
