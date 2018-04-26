@@ -1,5 +1,7 @@
 
+import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -59,8 +61,8 @@ public class Board extends JPanel implements ActionListener {
 
     public ScoreBoard scoreBoard;
 
-    public static final int NUM_ROWS = 20;
-    public static final int NUM_COLS = 20;
+    public static final int NUM_ROWS = 40;
+    public static final int NUM_COLS = 40;
     private int deltaTime;
     private Timer timer;
     boolean directionUp;
@@ -81,11 +83,12 @@ public class Board extends JPanel implements ActionListener {
         initValues();
         timer = new Timer(deltaTime, this);
         keyAdapter = new MyKeyAdapter();
+        setBackground(Color.BLACK);
     }
 
     public void initValues() {
         setFocusable(true);
-        deltaTime = 500;
+        deltaTime = 100;
         snake = new Snake(4);
 
     }
@@ -100,36 +103,49 @@ public class Board extends JPanel implements ActionListener {
         addKeyListener(keyAdapter);
         gameOver = false;
         //playSong(".wav");
-        direction = DirectionType.DOWN;
+        direction = DirectionType.RIGHT;
 
     }
 
     /* private boolean canMoveTo() {
         
     }
-    
-    private boolean checkColision() {
+     */
+    private boolean collisions() {
+        Node head = snake.listNodes.get(0);
+        if (head.col < 0) {
+        return true;
+        }
         
-    }*/
+        if (head.row < 0) {
+        return true;
+        }
+        
+        return false;
+    }
+
     @Override
     public void actionPerformed(ActionEvent ae) {
+        if (collisions() == true) {
+            gameOver();
+        } else {
         snake.movement(direction);
         repaint();
+        Toolkit.getDefaultToolkit().sync();
+        }
+
     }
 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         snake.draw(g, squareWidth(), squareHeight());
-        drawBoarder(g);
+       // drawBoarder(g);
     }
 
-    public void drawBoarder(Graphics g) {
-
-    }
-
-    public void drawBoard(Graphics g) {
-
-    }
+  /*  public void drawBoarder(Graphics g) {
+        g.setColor(Color.red);
+        g.drawRect(0, 0, NUM_COLS * squareWidth(), NUM_ROWS * squareHeight());
+    }*/
 
     public void setScoreboard(ScoreBoard scoreboard) {
         this.scoreBoard = scoreboard;
@@ -158,7 +174,8 @@ public class Board extends JPanel implements ActionListener {
     }
 
     public void gameOver() {
-
+       timer.stop();
+       scoreBoard.gameOver();
     }
 
     private int squareWidth() {
