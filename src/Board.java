@@ -113,14 +113,21 @@ public class Board extends JPanel implements ActionListener {
      */
     private boolean collisions() {
         Node head = snake.listNodes.get(0);
-        if (head.col < 0) {
-        return true;
+        if (head.col < 1) {
+            return true;
         }
-        
-        if (head.row < 0) {
-        return true;
+
+        if (head.row < 1) {
+            return true;
         }
-        
+
+        if (head.row > NUM_ROWS) {
+            return true;
+        }
+        if (head.col > NUM_COLS - 2) {
+            return true;
+        }
+
         return false;
     }
 
@@ -129,9 +136,9 @@ public class Board extends JPanel implements ActionListener {
         if (collisions() == true) {
             gameOver();
         } else {
-        snake.movement(direction);
-        repaint();
-        Toolkit.getDefaultToolkit().sync();
+            snake.movement(direction);
+            repaint();
+            Toolkit.getDefaultToolkit().sync();
         }
 
     }
@@ -139,14 +146,13 @@ public class Board extends JPanel implements ActionListener {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         snake.draw(g, squareWidth(), squareHeight());
-       // drawBoarder(g);
+        // drawBoarder(g);
     }
 
-  /*  public void drawBoarder(Graphics g) {
+    /*  public void drawBoarder(Graphics g) {
         g.setColor(Color.red);
         g.drawRect(0, 0, NUM_COLS * squareWidth(), NUM_ROWS * squareHeight());
     }*/
-
     public void setScoreboard(ScoreBoard scoreboard) {
         this.scoreBoard = scoreboard;
     }
@@ -174,8 +180,8 @@ public class Board extends JPanel implements ActionListener {
     }
 
     public void gameOver() {
-       timer.stop();
-       scoreBoard.gameOver();
+        timer.stop();
+        scoreBoard.gameOver();
     }
 
     private int squareWidth() {
