@@ -46,19 +46,19 @@ public class Board extends JPanel implements ActionListener
 
                     break;
                 case KeyEvent.VK_RIGHT:
-                    if (direction != DirectionType.LEFT && (timer.isRunning() || !gameOver))
+                    if (direction != DirectionType.LEFT && timer.isRunning() && !gameOver)
                     {
                         direction = DirectionType.RIGHT;
                     }
                     break;
                 case KeyEvent.VK_UP:
-                    if (direction != DirectionType.DOWN && (timer.isRunning() || !gameOver))
+                    if (direction != DirectionType.DOWN && timer.isRunning() && !gameOver)
                     {
                         direction = DirectionType.UP;
                     }
                     break;
                 case KeyEvent.VK_DOWN:
-                    if (direction != DirectionType.UP && (timer.isRunning() || !gameOver))
+                    if (direction != DirectionType.UP && timer.isRunning() && !gameOver)
                     {
                         direction = DirectionType.DOWN;
                     }
@@ -88,9 +88,10 @@ public class Board extends JPanel implements ActionListener
     AudioStream audioSong = null;
     AudioStream audioEffect = null;
     private Food food;
-    private SpecialFood specialFood;
+    private Food specialFood;
     private Snake snake;
     private boolean coincident;
+    private boolean specExist;
     private DirectionType direction = DirectionType.RIGHT;
 
     public Board()
@@ -193,8 +194,8 @@ public class Board extends JPanel implements ActionListener
     @Override
     public void actionPerformed(ActionEvent ae)
     {
-        System.out.println("Food row: " + food.row + " Food col: " + food.col);
-        System.out.println("Head row: " + snake.listNodes.get(0).row + " Head col: " + snake.listNodes.get(0).col + "\n");
+        /*System.out.println("Food row: " + food.row + " Food col: " + food.col);
+        System.out.println("Head row: " + snake.listNodes.get(0).row + " Head col: " + snake.listNodes.get(0).col + "\n");*/
         if (collisions() == true)
         {
             gameOver();
@@ -205,6 +206,15 @@ public class Board extends JPanel implements ActionListener
             repaint();
             Toolkit.getDefaultToolkit().sync();
             eat();
+            try
+            {
+                if(!specExist)
+                    specialFood();
+            }
+            catch (InterruptedException ex)
+            {
+            }
+            eatSpecial();
         }
 
     }
@@ -289,6 +299,50 @@ public class Board extends JPanel implements ActionListener
         }
     }
 
+    public void specialFood() throws InterruptedException
+    {
+        if (scoreBoard.getScore() % 10 == 0 && scoreBoard.getScore()!=0)
+        {
+            specExist=true;
+            Node full = null;
+            coincident = true;
+            while (coincident)
+            {
+                coincident = false;
+                specialFood = new Food(((int) (Math.random() * NUM_ROWS)), ((int) (Math.random() * NUM_COLS)), Color.PINK);
+                for (int i = 0; i < snake.listNodes.size(); i++)
+                {
+                    full = snake.listNodes.get(i);
+                    if (food.col == full.col && full.row == full.row)
+                    {
+                        coincident = true;
+                        food.col = ((int) (Math.random() * NUM_COLS));
+                        food.row = ((int) (Math.random() * NUM_ROWS));
+                    }
+                }
+            }
+            
+            if(specExist)
+            {
+                Thread.sleep(5000);
+                specialFood=null;
+                specExist=false;
+            }
+        }
+
+    }
+
+    public void eatSpecial()
+    {
+        Node head = snake.listNodes.get(0);
+        if (head.col == food.col && head.row == food.row)
+        {
+            scoreBoard.increment(5);
+            specialFood = null;
+            specExist=false;
+        }
+    }
+    
 }
 
 //deltaTime, food, specialFood, snake/timer

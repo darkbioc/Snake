@@ -8,7 +8,10 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -27,44 +30,47 @@ import sun.audio.AudioStream;
 public class Board extends JPanel implements ActionListener
 {
 
-<span class="fc" id="L30">    class MyKeyAdapter extends KeyAdapter</span>
+<span class="fc" id="L33">    class MyKeyAdapter extends KeyAdapter</span>
     {
 
         @Override
         public void keyPressed(KeyEvent e)
         {
-<span class="pc bpc" id="L36" title="2 of 5 branches missed.">            switch (e.getKeyCode())</span>
+<span class="nc bnc" id="L39" title="All 6 branches missed.">            switch (e.getKeyCode())</span>
             {
                 case KeyEvent.VK_LEFT:
-<span class="pc bpc" id="L39" title="1 of 2 branches missed.">                    if (direction != DirectionType.RIGHT)</span>
+<span class="nc bnc" id="L42" title="All 6 branches missed.">                    if (direction != DirectionType.RIGHT &amp;&amp; (timer.isRunning() || gameOver))</span>
                     {
-<span class="fc" id="L41">                        direction = DirectionType.LEFT;</span>
+<span class="nc" id="L44">                        direction = DirectionType.LEFT;</span>
                     }
 
                     break;
                 case KeyEvent.VK_RIGHT:
-<span class="nc bnc" id="L46" title="All 2 branches missed.">                    if (direction != DirectionType.LEFT)</span>
+<span class="nc bnc" id="L49" title="All 6 branches missed.">                    if (direction != DirectionType.LEFT &amp;&amp; timer.isRunning() &amp;&amp; !gameOver)</span>
                     {
-<span class="nc" id="L48">                        direction = DirectionType.RIGHT;</span>
+<span class="nc" id="L51">                        direction = DirectionType.RIGHT;</span>
                     }
                     break;
                 case KeyEvent.VK_UP:
-<span class="pc bpc" id="L52" title="1 of 2 branches missed.">                    if (direction != DirectionType.DOWN)</span>
+<span class="nc bnc" id="L55" title="All 6 branches missed.">                    if (direction != DirectionType.DOWN &amp;&amp; timer.isRunning() &amp;&amp; !gameOver)</span>
                     {
-<span class="fc" id="L54">                        direction = DirectionType.UP;</span>
+<span class="nc" id="L57">                        direction = DirectionType.UP;</span>
                     }
                     break;
                 case KeyEvent.VK_DOWN:
-<span class="pc bpc" id="L58" title="1 of 2 branches missed.">                    if (direction != DirectionType.UP)</span>
+<span class="nc bnc" id="L61" title="All 6 branches missed.">                    if (direction != DirectionType.UP &amp;&amp; timer.isRunning() &amp;&amp; !gameOver)</span>
                     {
-<span class="fc" id="L60">                        direction = DirectionType.DOWN;</span>
+<span class="nc" id="L63">                        direction = DirectionType.DOWN;</span>
                     }
                     break;
+                case KeyEvent.VK_P:
+<span class="nc" id="L67">                    switchPause();</span>
+<span class="nc" id="L68">                    break;</span>
                 default:
                     break;
             }
-<span class="fc" id="L66">            repaint();</span>
-<span class="fc" id="L67">        }</span>
+<span class="nc" id="L72">            repaint();</span>
+<span class="nc" id="L73">        }</span>
     }
 
     public ScoreBoard scoreBoard;
@@ -77,45 +83,46 @@ public class Board extends JPanel implements ActionListener
     boolean directionDown;
     boolean directionLeft;
     boolean directionRight;
-<span class="fc" id="L80">    boolean gameOver = false;</span>
+<span class="fc" id="L86">    boolean gameOver = false;</span>
     MyKeyAdapter keyAdapter;
-<span class="fc" id="L82">    AudioStream audioSong = null;</span>
-<span class="fc" id="L83">    AudioStream audioEffect = null;</span>
+<span class="fc" id="L88">    AudioStream audioSong = null;</span>
+<span class="fc" id="L89">    AudioStream audioEffect = null;</span>
     private Food food;
-    private SpecialFood specialFood;
+    private Food specialFood;
     private Snake snake;
-<span class="fc" id="L87">    private DirectionType direction = DirectionType.RIGHT;</span>
+    private boolean coincident;
+<span class="fc" id="L94">    private DirectionType direction = DirectionType.RIGHT;</span>
 
     public Board()
     {
-<span class="fc" id="L91">        super();</span>
-<span class="fc" id="L92">        initValues();</span>
-<span class="fc" id="L93">        timer = new Timer(deltaTime, this);</span>
-<span class="fc" id="L94">        keyAdapter = new MyKeyAdapter();</span>
-<span class="fc" id="L95">        setBackground(Color.BLACK);</span>
-<span class="fc" id="L96">    }</span>
+<span class="fc" id="L98">        super();</span>
+<span class="fc" id="L99">        initValues();</span>
+<span class="fc" id="L100">        timer = new Timer(deltaTime, this);</span>
+<span class="fc" id="L101">        keyAdapter = new MyKeyAdapter();</span>
+<span class="fc" id="L102">        setBackground(Color.BLACK);</span>
+<span class="fc" id="L103">    }</span>
 
     public void initValues()
     {
-<span class="fc" id="L100">        setFocusable(true);</span>
-<span class="fc" id="L101">        deltaTime = 100;</span>
-<span class="fc" id="L102">        snake = new Snake(10);</span>
-<span class="fc" id="L103">        food=new Food((int)(Math.random()*NUM_ROWS), (int)(Math.random()*NUM_COLS), Color.red);</span>
-<span class="fc" id="L104">    }</span>
+<span class="fc" id="L107">        setFocusable(true);</span>
+<span class="fc" id="L108">        deltaTime = 100;</span>
+<span class="fc" id="L109">        snake = new Snake(3);</span>
+<span class="fc" id="L110">        food = new Food((int) (Math.random() * NUM_ROWS), (int) (Math.random() * NUM_COLS), Color.red);</span>
+<span class="fc" id="L111">    }</span>
 
     public void initGame()
     {
         //AudioPlayer.player.stop(audioSong);
-<span class="fc" id="L109">        initValues();</span>
+<span class="fc" id="L116">        initValues();</span>
 
-<span class="fc" id="L111">        removeKeyListener(keyAdapter);</span>
-<span class="fc" id="L112">        timer.setDelay(deltaTime);</span>
-<span class="fc" id="L113">        timer.start();</span>
-<span class="fc" id="L114">        addKeyListener(keyAdapter);</span>
-<span class="fc" id="L115">        gameOver = false;</span>
+<span class="fc" id="L118">        removeKeyListener(keyAdapter);</span>
+<span class="fc" id="L119">        timer.setDelay(deltaTime);</span>
+<span class="fc" id="L120">        timer.start();</span>
+<span class="fc" id="L121">        addKeyListener(keyAdapter);</span>
+<span class="fc" id="L122">        gameOver = false;</span>
         //playSong(&quot;.wav&quot;);
-<span class="fc" id="L117">        direction = DirectionType.RIGHT;</span>
-<span class="fc" id="L118">    }</span>
+<span class="fc" id="L124">        direction = DirectionType.RIGHT;</span>
+<span class="fc" id="L125">    }</span>
 
     /* private boolean canMoveTo() {
         
@@ -123,75 +130,100 @@ public class Board extends JPanel implements ActionListener
      */
     private boolean collisions()
     {
-<span class="fc" id="L126">        Node head = snake.listNodes.get(0);</span>
-<span class="fc" id="L127">        Node body=null;</span>
-<span class="fc bfc" id="L128" title="All 2 branches covered.">        for (int i = 1; i &lt; snake.listNodes.size(); i++)</span>
+<span class="fc" id="L133">        Node head = snake.listNodes.get(0);</span>
+<span class="fc" id="L134">        Node body = null;</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">        for (int i = 1; i &lt; snake.listNodes.size(); i++)</span>
         {
-<span class="fc" id="L130">            body=snake.listNodes.get(i);</span>
-<span class="pc bpc" id="L131" title="1 of 4 branches missed.">            if( head.col==body.col &amp;&amp; head.row == body.row)</span>
+<span class="fc" id="L137">            body = snake.listNodes.get(i);</span>
+<span class="pc bpc" id="L138" title="3 of 4 branches missed.">            if (head.col == body.col &amp;&amp; head.row == body.row)</span>
             {
-<span class="nc" id="L133">                return true;</span>
+<span class="nc" id="L140">                return true;</span>
             }
         }
-<span class="pc bpc" id="L136" title="1 of 2 branches missed.">        if (head.col &lt; 0)</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">        if (head.col &lt; 0)</span>
         {
-<span class="nc" id="L138">            return true;</span>
+<span class="nc" id="L145">            return true;</span>
         }
 
-<span class="pc bpc" id="L141" title="1 of 2 branches missed.">        if (head.row &lt; 0)</span>
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">        if (head.row &lt; 0)</span>
         {
-<span class="nc" id="L143">            return true;</span>
+<span class="nc" id="L150">            return true;</span>
         }
 
-<span class="pc bpc" id="L146" title="1 of 2 branches missed.">        if (head.row &gt; NUM_ROWS+1)</span>
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">        if (head.row &gt; NUM_ROWS + 1)</span>
         {
-<span class="nc" id="L148">            return true;</span>
+<span class="nc" id="L155">            return true;</span>
         }
-<span class="pc bpc" id="L150" title="1 of 2 branches missed.">        if (head.col &gt; NUM_COLS - 1)</span>
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">        if (head.col &gt; NUM_COLS - 1)</span>
         {
-<span class="nc" id="L152">            return true;</span>
+<span class="nc" id="L159">            return true;</span>
         }
-        
-        
 
-<span class="fc" id="L157">        return false;</span>
+<span class="fc" id="L162">        return false;</span>
     }
+
     public void eat()
     {
-<span class="nc" id="L161">        Node head= snake.listNodes.get(0);</span>
-<span class="nc bnc" id="L162" title="All 4 branches missed.">        if (head.col==food.col &amp;&amp; head.row==food.row)</span>
+<span class="fc" id="L167">        coincident = true;</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">        while (coincident)</span>
         {
-<span class="nc" id="L164">            food.col=((int)(Math.random()*NUM_COLS));</span>
-<span class="nc" id="L165">            food.row=((int)(Math.random()*NUM_ROWS));</span>
-<span class="nc" id="L166">            snake.eat(direction);</span>
-        }
-<span class="nc" id="L168">    }</span>
+<span class="fc" id="L170">            coincident = false;</span>
+<span class="fc" id="L171">            Node full = null;</span>
+<span class="fc" id="L172">            Node head = snake.listNodes.get(0);</span>
+<span class="pc bpc" id="L173" title="3 of 4 branches missed.">            if (head.col == food.col &amp;&amp; head.row == food.row)</span>
+            {
+<span class="nc" id="L175">                food.col = ((int) (Math.random() * NUM_COLS));</span>
+<span class="nc" id="L176">                food.row = ((int) (Math.random() * NUM_ROWS));</span>
+<span class="nc" id="L177">                snake.eat(direction);</span>
+<span class="nc" id="L178">                scoreBoard.increment(1);</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">                for (int i = 0; i &lt; snake.listNodes.size(); i++)</span>
+                {
+<span class="nc" id="L181">                    full = snake.listNodes.get(i);</span>
+<span class="nc bnc" id="L182" title="All 4 branches missed.">                    if (food.col == full.col &amp;&amp; full.row == full.row)</span>
+                    {
+<span class="nc" id="L184">                        coincident = true;</span>
+<span class="nc" id="L185">                        food.col = ((int) (Math.random() * NUM_COLS));</span>
+<span class="nc" id="L186">                        food.row = ((int) (Math.random() * NUM_ROWS));</span>
+                    }
+                }
+            }
+<span class="fc" id="L190">        }</span>
+<span class="fc" id="L191">    }</span>
 
     @Override
     public void actionPerformed(ActionEvent ae)
     {
-<span class="fc" id="L173">        System.out.println(&quot;Food row: &quot;+food.row+&quot; Food col: &quot;+food.col);</span>
-<span class="fc" id="L174">        System.out.println(&quot;Head row: &quot;+snake.listNodes.get(0).row+&quot; Head col: &quot;+snake.listNodes.get(0).col+&quot;\n&quot;);</span>
-<span class="pc bpc" id="L175" title="1 of 2 branches missed.">        if (collisions() == true)</span>
+        /*System.out.println(&quot;Food row: &quot; + food.row + &quot; Food col: &quot; + food.col);
+        System.out.println(&quot;Head row: &quot; + snake.listNodes.get(0).row + &quot; Head col: &quot; + snake.listNodes.get(0).col + &quot;\n&quot;);*/
+<span class="pc bpc" id="L198" title="1 of 2 branches missed.">        if (collisions() == true)</span>
         {
-<span class="nc" id="L177">            gameOver();</span>
+<span class="nc" id="L200">            gameOver();</span>
         }
         else
         {
-<span class="fc" id="L181">            snake.movement(direction);</span>
-<span class="fc" id="L182">            repaint();</span>
-<span class="fc" id="L183">            Toolkit.getDefaultToolkit().sync();</span>
+<span class="fc" id="L204">            snake.movement(direction);</span>
+<span class="fc" id="L205">            repaint();</span>
+<span class="fc" id="L206">            Toolkit.getDefaultToolkit().sync();</span>
+<span class="fc" id="L207">            eat();</span>
+            try
+            {
+<span class="fc" id="L210">                specialFood();</span>
+            }
+<span class="nc" id="L212">            catch (InterruptedException ex)</span>
+            {
+<span class="fc" id="L214">            }</span>
+<span class="fc" id="L215">            eatSpecial();</span>
         }
 
-<span class="fc" id="L186">    }</span>
+<span class="fc" id="L218">    }</span>
 
     protected void paintComponent(Graphics g)
     {
-<span class="fc" id="L190">        super.paintComponent(g);</span>
-<span class="fc" id="L191">        snake.draw(g, squareWidth(), squareHeight());</span>
-<span class="fc" id="L192">        food.draw(g, squareWidth(), squareHeight());</span>
+<span class="fc" id="L222">        super.paintComponent(g);</span>
+<span class="fc" id="L223">        snake.draw(g, squareWidth(), squareHeight());</span>
+<span class="fc" id="L224">        food.draw(g, squareWidth(), squareHeight());</span>
         // drawBoarder(g);
-<span class="fc" id="L194">    }</span>
+<span class="fc" id="L226">    }</span>
 
     /*  public void drawBoarder(Graphics g) {
         g.setColor(Color.red);
@@ -199,55 +231,109 @@ public class Board extends JPanel implements ActionListener
     }*/
     public void setScoreboard(ScoreBoard scoreboard)
     {
-<span class="fc" id="L202">        this.scoreBoard = scoreboard;</span>
-<span class="fc" id="L203">    }</span>
+<span class="fc" id="L234">        this.scoreBoard = scoreboard;</span>
+<span class="fc" id="L235">    }</span>
 
     public void playSong(String song)
     {
         InputStream music;
         try
         {
-<span class="nc" id="L210">            music = new FileInputStream(new File(song));</span>
-<span class="nc" id="L211">            audioSong = new AudioStream(music);</span>
-<span class="nc" id="L212">            AudioPlayer.player.start(audioSong);</span>
+<span class="nc" id="L242">            music = new FileInputStream(new File(song));</span>
+<span class="nc" id="L243">            audioSong = new AudioStream(music);</span>
+<span class="nc" id="L244">            AudioPlayer.player.start(audioSong);</span>
         }
-<span class="nc" id="L214">        catch (Exception e)</span>
+<span class="nc" id="L246">        catch (Exception e)</span>
         {
-<span class="nc" id="L216">            JOptionPane.showMessageDialog(null, e.getLocalizedMessage());</span>
-<span class="nc" id="L217">        }</span>
-<span class="nc" id="L218">    }</span>
+<span class="nc" id="L248">            JOptionPane.showMessageDialog(null, e.getLocalizedMessage());</span>
+<span class="nc" id="L249">        }</span>
+<span class="nc" id="L250">    }</span>
 
     public void playEffect(String effect)
     {
         InputStream music;
         try
         {
-<span class="nc" id="L225">            music = new FileInputStream(new File(effect));</span>
-<span class="nc" id="L226">            audioEffect = new AudioStream(music);</span>
-<span class="nc" id="L227">            AudioPlayer.player.start(audioEffect);</span>
+<span class="nc" id="L257">            music = new FileInputStream(new File(effect));</span>
+<span class="nc" id="L258">            audioEffect = new AudioStream(music);</span>
+<span class="nc" id="L259">            AudioPlayer.player.start(audioEffect);</span>
         }
-<span class="nc" id="L229">        catch (Exception e)</span>
+<span class="nc" id="L261">        catch (Exception e)</span>
         {
-<span class="nc" id="L231">            JOptionPane.showMessageDialog(null, e.getLocalizedMessage());</span>
-<span class="nc" id="L232">        }</span>
-<span class="nc" id="L233">    }</span>
+<span class="nc" id="L263">            JOptionPane.showMessageDialog(null, e.getLocalizedMessage());</span>
+<span class="nc" id="L264">        }</span>
+<span class="nc" id="L265">    }</span>
 
     public void gameOver()
     {
-<span class="nc" id="L237">        timer.stop();</span>
-<span class="nc" id="L238">        scoreBoard.gameOver();</span>
-<span class="nc" id="L239">    }</span>
+<span class="nc" id="L269">        timer.stop();</span>
+<span class="nc" id="L270">        scoreBoard.gameOver();</span>
+<span class="nc" id="L271">    }</span>
 
     private int squareWidth()
     {
-<span class="fc" id="L243">        return getWidth() / NUM_COLS;</span>
+<span class="fc" id="L275">        return getWidth() / NUM_COLS;</span>
     }
 
     private int squareHeight()
     {
-<span class="fc" id="L248">        return getHeight() / NUM_ROWS;</span>
+<span class="fc" id="L280">        return getHeight() / NUM_ROWS;</span>
     }
 
+    public void switchPause()
+    {
+<span class="nc bnc" id="L285" title="All 2 branches missed.">        if (!gameOver)</span>
+        {
+<span class="nc bnc" id="L287" title="All 2 branches missed.">            if (!timer.isRunning())</span>
+            {
+<span class="nc" id="L289">                scoreBoard.resume();</span>
+<span class="nc" id="L290">                timer.start();</span>
+            }
+            else
+            {
+<span class="nc" id="L294">                timer.stop();</span>
+<span class="nc" id="L295">                scoreBoard.pause();</span>
+            }
+        }
+<span class="nc" id="L298">    }</span>
+
+    public void specialFood() throws InterruptedException
+    {
+<span class="pc bpc" id="L302" title="1 of 2 branches missed.">        if (scoreBoard.getScore() % 10 == 0)</span>
+        {
+<span class="fc" id="L304">            Node full = null;</span>
+<span class="fc" id="L305">            coincident = true;</span>
+<span class="fc bfc" id="L306" title="All 2 branches covered.">            while (coincident)</span>
+            {
+<span class="fc" id="L308">                coincident = false;</span>
+<span class="fc" id="L309">                specialFood = new Food(((int) (Math.random() * NUM_ROWS)), ((int) (Math.random() * NUM_COLS)), Color.PINK);</span>
+<span class="fc bfc" id="L310" title="All 2 branches covered.">                for (int i = 0; i &lt; snake.listNodes.size(); i++)</span>
+                {
+<span class="fc" id="L312">                    full = snake.listNodes.get(i);</span>
+<span class="pc bpc" id="L313" title="3 of 4 branches missed.">                    if (food.col == full.col &amp;&amp; full.row == full.row)</span>
+                    {
+<span class="nc" id="L315">                        coincident = true;</span>
+<span class="nc" id="L316">                        food.col = ((int) (Math.random() * NUM_COLS));</span>
+<span class="nc" id="L317">                        food.row = ((int) (Math.random() * NUM_ROWS));</span>
+                    }
+                }
+            }
+<span class="fc" id="L321">            Thread.sleep(5000);</span>
+<span class="fc" id="L322">            specialFood=null;</span>
+        }
+
+<span class="fc" id="L325">    }</span>
+
+    public void eatSpecial()
+    {
+<span class="fc" id="L329">        Node head = snake.listNodes.get(0);</span>
+<span class="pc bpc" id="L330" title="3 of 4 branches missed.">        if (head.col == food.col &amp;&amp; head.row == food.row)</span>
+        {
+<span class="nc" id="L332">            scoreBoard.increment(5);</span>
+<span class="nc" id="L333">            specialFood = null;</span>
+        }
+<span class="fc" id="L335">    }</span>
+    
 }
 
 //deltaTime, food, specialFood, snake/timer

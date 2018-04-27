@@ -89,7 +89,8 @@ public class Game extends javax.swing.JFrame
 
     private void jMenuItemStartGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemStartGameActionPerformed
 <span class="fc" id="L91">        board1.initGame();</span>
-<span class="fc" id="L92">    }//GEN-LAST:event_jMenuItemStartGameActionPerformed</span>
+<span class="fc" id="L92">        scoreBoard1.reset();</span>
+<span class="fc" id="L93">    }//GEN-LAST:event_jMenuItemStartGameActionPerformed</span>
 
     /**
      * @param args the command line arguments
@@ -103,43 +104,43 @@ public class Game extends javax.swing.JFrame
          */
         try
         {
-<span class="pc bpc" id="L106" title="1 of 2 branches missed.">            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels())</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels())</span>
             {
-<span class="fc bfc" id="L108" title="All 2 branches covered.">                if (&quot;Nimbus&quot;.equals(info.getName()))</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">                if (&quot;Nimbus&quot;.equals(info.getName()))</span>
                 {
-<span class="fc" id="L110">                    javax.swing.UIManager.setLookAndFeel(info.getClassName());</span>
-<span class="fc" id="L111">                    break;</span>
+<span class="fc" id="L111">                    javax.swing.UIManager.setLookAndFeel(info.getClassName());</span>
+<span class="fc" id="L112">                    break;</span>
                 }
             }
         }
-<span class="nc" id="L115">        catch (ClassNotFoundException ex)</span>
+<span class="nc" id="L116">        catch (ClassNotFoundException ex)</span>
         {
-<span class="nc" id="L117">            java.util.logging.Logger.getLogger(Game.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);</span>
+<span class="nc" id="L118">            java.util.logging.Logger.getLogger(Game.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);</span>
         }
-<span class="nc" id="L119">        catch (InstantiationException ex)</span>
+<span class="nc" id="L120">        catch (InstantiationException ex)</span>
         {
-<span class="nc" id="L121">            java.util.logging.Logger.getLogger(Game.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);</span>
+<span class="nc" id="L122">            java.util.logging.Logger.getLogger(Game.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);</span>
         }
-<span class="nc" id="L123">        catch (IllegalAccessException ex)</span>
+<span class="nc" id="L124">        catch (IllegalAccessException ex)</span>
         {
-<span class="nc" id="L125">            java.util.logging.Logger.getLogger(Game.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);</span>
+<span class="nc" id="L126">            java.util.logging.Logger.getLogger(Game.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);</span>
         }
-<span class="nc" id="L127">        catch (javax.swing.UnsupportedLookAndFeelException ex)</span>
+<span class="nc" id="L128">        catch (javax.swing.UnsupportedLookAndFeelException ex)</span>
         {
-<span class="nc" id="L129">            java.util.logging.Logger.getLogger(Game.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);</span>
-<span class="pc" id="L130">        }</span>
+<span class="nc" id="L130">            java.util.logging.Logger.getLogger(Game.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);</span>
+<span class="pc" id="L131">        }</span>
         //&lt;/editor-fold&gt;
         //&lt;/editor-fold&gt;
 
         /* Create and display the form */
-<span class="fc" id="L135">        java.awt.EventQueue.invokeLater(new Runnable()</span>
-<span class="fc" id="L136">        {</span>
+<span class="fc" id="L136">        java.awt.EventQueue.invokeLater(new Runnable()</span>
+<span class="fc" id="L137">        {</span>
             public void run()
             {
-<span class="fc" id="L139">                new Game().setVisible(true);</span>
-<span class="fc" id="L140">            }</span>
+<span class="fc" id="L140">                new Game().setVisible(true);</span>
+<span class="fc" id="L141">            }</span>
         });
-<span class="fc" id="L142">    }</span>
+<span class="fc" id="L143">    }</span>
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private Board board1;
