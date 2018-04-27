@@ -11,17 +11,26 @@ import java.awt.Graphics;
  *
  * @author alu20919409n
  */
-public class Node {
+public class Node
+{
 
     public int row;
     public int col;
     public Color color;
 
-    public Node(int row, int col, Color color) {
+    public Node(int row, int col, Color color)
+    {
         this.row = row;
         this.col = col;
         this.color = color;
     }
-
+    
+    public int[] getPosition()
+    {
+        int[] pos = new int[2];
+        pos[0]=row;
+        pos[1]=col;
+        return pos;       
+    }
     //hacer getters and setters de todo?
 }

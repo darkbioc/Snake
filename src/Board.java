@@ -8,7 +8,10 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -24,33 +27,44 @@ import sun.audio.AudioStream;
  *
  * @author alu20919409n
  */
-public class Board extends JPanel implements ActionListener {
+public class Board extends JPanel implements ActionListener
+{
 
-    class MyKeyAdapter extends KeyAdapter {
+    class MyKeyAdapter extends KeyAdapter
+    {
 
         @Override
-        public void keyPressed(KeyEvent e) {
-            switch (e.getKeyCode()) {
+        public void keyPressed(KeyEvent e)
+        {
+            switch (e.getKeyCode())
+            {
                 case KeyEvent.VK_LEFT:
-                    if (direction != DirectionType.RIGHT) {
+                    if (direction != DirectionType.RIGHT && (timer.isRunning() || gameOver))
+                    {
                         direction = DirectionType.LEFT;
                     }
 
                     break;
                 case KeyEvent.VK_RIGHT:
-                    if (direction != DirectionType.LEFT) {
+                    if (direction != DirectionType.LEFT && (timer.isRunning() || !gameOver))
+                    {
                         direction = DirectionType.RIGHT;
                     }
                     break;
                 case KeyEvent.VK_UP:
-                    if (direction != DirectionType.DOWN) {
+                    if (direction != DirectionType.DOWN && (timer.isRunning() || !gameOver))
+                    {
                         direction = DirectionType.UP;
                     }
                     break;
                 case KeyEvent.VK_DOWN:
-                    if (direction != DirectionType.UP) {
+                    if (direction != DirectionType.UP && (timer.isRunning() || !gameOver))
+                    {
                         direction = DirectionType.DOWN;
                     }
+                    break;
+                case KeyEvent.VK_P:
+                    switchPause();
                     break;
                 default:
                     break;
@@ -76,9 +90,11 @@ public class Board extends JPanel implements ActionListener {
     private Food food;
     private SpecialFood specialFood;
     private Snake snake;
+    private boolean coincident;
     private DirectionType direction = DirectionType.RIGHT;
 
-    public Board() {
+    public Board()
+    {
         super();
         initValues();
         timer = new Timer(deltaTime, this);
@@ -86,14 +102,16 @@ public class Board extends JPanel implements ActionListener {
         setBackground(Color.BLACK);
     }
 
-    public void initValues() {
+    public void initValues()
+    {
         setFocusable(true);
         deltaTime = 100;
-        snake = new Snake(4);
-
+        snake = new Snake(3);
+        food = new Food((int) (Math.random() * NUM_ROWS), (int) (Math.random() * NUM_COLS), Color.red);
     }
 
-    public void initGame() {
+    public void initGame()
+    {
         //AudioPlayer.player.stop(audioSong);
         initValues();
 
@@ -104,48 +122,98 @@ public class Board extends JPanel implements ActionListener {
         gameOver = false;
         //playSong(".wav");
         direction = DirectionType.RIGHT;
-
     }
 
     /* private boolean canMoveTo() {
         
     }
      */
-    private boolean collisions() {
+    private boolean collisions()
+    {
         Node head = snake.listNodes.get(0);
-        if (head.col < 1) {
+        Node body = null;
+        for (int i = 1; i < snake.listNodes.size(); i++)
+        {
+            body = snake.listNodes.get(i);
+            if (head.col == body.col && head.row == body.row)
+            {
+                return true;
+            }
+        }
+        if (head.col < 0)
+        {
             return true;
         }
 
-        if (head.row < 1) {
+        if (head.row < 0)
+        {
             return true;
         }
 
-        if (head.row > NUM_ROWS) {
+        if (head.row > NUM_ROWS + 1)
+        {
             return true;
         }
-        if (head.col > NUM_COLS - 2) {
+        if (head.col > NUM_COLS - 1)
+        {
             return true;
         }
 
         return false;
     }
 
+    public void eat()
+    {
+        coincident = true;
+        while (coincident)
+        {
+            coincident = false;
+            Node full = null;
+            Node head = snake.listNodes.get(0);
+            if (head.col == food.col && head.row == food.row)
+            {
+                food.col = ((int) (Math.random() * NUM_COLS));
+                food.row = ((int) (Math.random() * NUM_ROWS));
+                snake.eat(direction);
+                scoreBoard.increment(1);
+                for (int i = 0; i < snake.listNodes.size(); i++)
+                {
+                    full = snake.listNodes.get(i);
+                    if (food.col == full.col && full.row == full.row)
+                    {
+                        coincident = true;
+                        food.col = ((int) (Math.random() * NUM_COLS));
+                        food.row = ((int) (Math.random() * NUM_ROWS));
+                    }
+                }
+            }
+        }
+    }
+
     @Override
-    public void actionPerformed(ActionEvent ae) {
-        if (collisions() == true) {
+    public void actionPerformed(ActionEvent ae)
+    {
+        System.out.println("Food row: " + food.row + " Food col: " + food.col);
+        System.out.println("Head row: " + snake.listNodes.get(0).row + " Head col: " + snake.listNodes.get(0).col + "\n");
+        if (collisions() == true)
+        {
             gameOver();
-        } else {
+        }
+        else
+        {
             snake.movement(direction);
             repaint();
             Toolkit.getDefaultToolkit().sync();
+            eat();
         }
 
     }
 
-    protected void paintComponent(Graphics g) {
+    protected void paintComponent(Graphics g)
+    {
         super.paintComponent(g);
         snake.draw(g, squareWidth(), squareHeight());
+        food.draw(g, squareWidth(), squareHeight());
         // drawBoarder(g);
     }
 
@@ -153,43 +221,72 @@ public class Board extends JPanel implements ActionListener {
         g.setColor(Color.red);
         g.drawRect(0, 0, NUM_COLS * squareWidth(), NUM_ROWS * squareHeight());
     }*/
-    public void setScoreboard(ScoreBoard scoreboard) {
+    public void setScoreboard(ScoreBoard scoreboard)
+    {
         this.scoreBoard = scoreboard;
     }
 
-    public void playSong(String song) {
+    public void playSong(String song)
+    {
         InputStream music;
-        try {
+        try
+        {
             music = new FileInputStream(new File(song));
             audioSong = new AudioStream(music);
             AudioPlayer.player.start(audioSong);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             JOptionPane.showMessageDialog(null, e.getLocalizedMessage());
         }
     }
 
-    public void playEffect(String effect) {
+    public void playEffect(String effect)
+    {
         InputStream music;
-        try {
+        try
+        {
             music = new FileInputStream(new File(effect));
             audioEffect = new AudioStream(music);
             AudioPlayer.player.start(audioEffect);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             JOptionPane.showMessageDialog(null, e.getLocalizedMessage());
         }
     }
 
-    public void gameOver() {
+    public void gameOver()
+    {
         timer.stop();
         scoreBoard.gameOver();
     }
 
-    private int squareWidth() {
+    private int squareWidth()
+    {
         return getWidth() / NUM_COLS;
     }
 
-    private int squareHeight() {
+    private int squareHeight()
+    {
         return getHeight() / NUM_ROWS;
+    }
+
+    public void switchPause()
+    {
+        if (!gameOver)
+        {
+            if (!timer.isRunning())
+            {
+                scoreBoard.resume();
+                timer.start();
+            }
+            else
+            {
+                timer.stop();
+                scoreBoard.pause();
+            }
+        }
     }
 
 }

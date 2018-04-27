@@ -8,6 +8,7 @@
  *
  * @author alu20919409n
  */
-public enum DirectionType {
+public enum DirectionType
+{
     LEFT, RIGHT, UP, DOWN
 }

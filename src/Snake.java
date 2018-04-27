@@ -12,40 +12,49 @@ import java.util.ArrayList;
  *
  * @author alu20919409n
  */
-public class Snake {
+public class Snake
+{
 
     public ArrayList<Node> listNodes;
     private DirectionType direction;
 
-    public DirectionType getDirection() {
+    public DirectionType getDirection()
+    {
         return direction;
     }
 
-    public void setDirection(DirectionType direction) {
+    public void setDirection(DirectionType direction)
+    {
         this.direction = direction;
     }
 
-    public Snake(int snakeLength) {
+    public Snake(int snakeLength)
+    {
         listNodes = new ArrayList<Node>();
         this.direction = DirectionType.RIGHT;
-        for (int i = 0; i < snakeLength; i++) {
+        for (int i = 0; i < snakeLength; i++)
+        {
             listNodes.add(new Node(Board.NUM_ROWS / 2, Board.NUM_COLS / 2 - i, Color.GREEN));
         }
 
     }
 
-    public void draw(Graphics g, int squareWidth, int squareHeight) {
-        for (Node node : listNodes) {
+    public void draw(Graphics g, int squareWidth, int squareHeight)
+    {
+        for (Node node : listNodes)
+        {
             Util.drawSquare(g, node.row, node.col, node.color, squareWidth, squareHeight);
 
         }
     }
 
-    public void movement(DirectionType direction) {
+    public void movement(DirectionType direction)
+    {
         Node head = listNodes.get(0);
 
         Node node = new Node(head.row, head.col, Color.GREEN);
-        switch (direction) {
+        switch (direction)
+        {
             case LEFT:
                 node.col--;
                 listNodes.add(0, node);
@@ -69,7 +78,45 @@ public class Snake {
                 break;
 
         }
+        
+        
 
         listNodes.remove(listNodes.size() - 1);
     }
+    public void eat(DirectionType direction)
+    {
+        Node head = listNodes.get(0);
+
+        Node node = new Node(head.row, head.col, Color.GREEN);
+        switch (direction)
+        {
+            case LEFT:
+                node.col--;
+                listNodes.add(0, node);
+                break;
+            case RIGHT:
+                node.col++;
+                listNodes.add(0, node);
+                break;
+            case UP:
+                node.row--;
+                listNodes.add(0, node);
+                break;
+
+            case DOWN:
+                node.row++;
+                listNodes.add(0, node);
+                break;
+
+            default:
+
+                break;
+
+        }
+        
+        
+
+        //listNodes.remove(listNodes.size() - 1);
+    }
+    
 }

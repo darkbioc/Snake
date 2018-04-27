@@ -11,9 +11,11 @@ import java.awt.Graphics;
  *
  * @author alu20919409n
  */
-public class Util {
+public class Util
+{
 
-    public static void drawSquare(Graphics g, int row, int col, Color color, int squareWidth, int squareHeight) {
+    public static void drawSquare(Graphics g, int row, int col, Color color, int squareWidth, int squareHeight)
+    {
         int x = col * squareWidth;
         int y = row * squareHeight;
         g.setColor(color);
